@@ -81,7 +81,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useAdministradorStore } from '../stores/administrador.js';
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'; 
+
 
 const router = useRouter();
 const authStore = useAdministradorStore();
@@ -90,6 +91,7 @@ const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
 const showPassword = ref(false);
+
 
 // Inicializar el store
 onMounted(() => {
@@ -138,6 +140,8 @@ const handleSubmit = async () => {
 const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
 };
+
+
 </script>
 
 <style scoped>

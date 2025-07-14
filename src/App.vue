@@ -28,12 +28,6 @@
           </q-btn>
         </div>
       </q-toolbar>
-
-      <q-tabs align="left">
-        <q-route-tab to="/" label="Inicio" />
-        <q-route-tab to="/page2" label="Página 2" />
-        <q-route-tab to="/page3" label="Página 3" />
-      </q-tabs>
     </q-header>
 
     <q-page-container>

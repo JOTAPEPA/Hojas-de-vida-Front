@@ -8,19 +8,33 @@ export const useAdministradorStore = defineStore("auth", () => {
     const refreshToken = ref("");
     const user = ref(null);
     const isLoading = ref(false);
+    const inactivityTimer = ref(null);
+    const INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 1 hora en milisegundos
 
     // Computed para verificar si está autenticado
     const isAuthenticated = computed(() => !!token.value);
 
-    // Función para inicializar el estado desde localStorage
+    // Función para inicializar el estado desde sessionStorage
     function initializeAuth() {
-        const authData = localStorage.getItem("Auth");
+        const authData = sessionStorage.getItem("Auth");
         if (authData) {
             try {
                 const parsedData = JSON.parse(authData);
+                const loginTime = parsedData.loginTime;
+                const currentTime = Date.now();
+                
+                // Verificar si han pasado más de 1 hora desde el login
+                if (currentTime - loginTime > INACTIVITY_TIMEOUT) {
+                    clearAuth();
+                    return;
+                }
+                
                 token.value = parsedData.token || "";
                 refreshToken.value = parsedData.refresh_token || "";
                 user.value = parsedData.user || null;
+                
+                // Reiniciar timer de inactividad
+                startInactivityTimer();
             } catch (error) {
                 console.error("Error al parsear datos de auth:", error);
                 clearAuth();
@@ -42,6 +56,7 @@ export const useAdministradorStore = defineStore("auth", () => {
             
             if (accessToken && refresh_token) {
                 setTokens(accessToken, refresh_token, userData);
+                startInactivityTimer(); // Iniciar timer después del login
                 return { success: true, message: "Login exitoso" };
             } else {
                 throw new Error("Respuesta de login inválida");
@@ -78,6 +93,7 @@ export const useAdministradorStore = defineStore("auth", () => {
                     };
 
                     setTokens(mockToken, mockRefreshToken, mockUser);
+                    startInactivityTimer(); // Iniciar timer después del login
                     resolve({ success: true, message: "Login exitoso" });
                 } else {
                     resolve({ 
@@ -116,12 +132,13 @@ export const useAdministradorStore = defineStore("auth", () => {
     }
 
     function updateLocalStorage() {
-        localStorage.setItem(
+        sessionStorage.setItem(
             "Auth",
             JSON.stringify({
                 token: token.value,
                 refresh_token: refreshToken.value,
-                user: user.value
+                user: user.value,
+                loginTime: Date.now() // Guardar tiempo de login
             })
         );
     }
@@ -130,11 +147,38 @@ export const useAdministradorStore = defineStore("auth", () => {
         token.value = "";
         refreshToken.value = "";
         user.value = null;
-        localStorage.removeItem("Auth");
+        clearInactivityTimer();
+        sessionStorage.removeItem("Auth");
     }
 
     function logout() {
         clearAuth();
+    }
+
+    // Funciones para manejar timer de inactividad
+    function startInactivityTimer() {
+        clearInactivityTimer();
+        inactivityTimer.value = setTimeout(() => {
+            console.log("Sesión expirada por inactividad");
+            logout();
+            // Redirigir a login si es necesario
+            if (typeof window !== 'undefined' && window.location.pathname !== '/signin') {
+                window.location.href = '/signin';
+            }
+        }, INACTIVITY_TIMEOUT);
+    }
+
+    function clearInactivityTimer() {
+        if (inactivityTimer.value) {
+            clearTimeout(inactivityTimer.value);
+            inactivityTimer.value = null;
+        }
+    }
+
+    function resetInactivityTimer() {
+        if (isAuthenticated.value) {
+            startInactivityTimer();
+        }
     }
 
     // Función para refrescar el token
@@ -174,6 +218,7 @@ export const useAdministradorStore = defineStore("auth", () => {
         setTokens,
         clearAuth,
         logout,
-        refreshAccessToken
+        refreshAccessToken,
+        resetInactivityTimer
     };
 });

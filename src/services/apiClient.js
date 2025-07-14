@@ -12,7 +12,16 @@ export async function getData(url) {
 
 export async function postData(url, data) {
     try {
-        const response = await apiClient.post(url, data);
+        const config = {};
+        
+        // Si los datos son FormData, no establecer Content-Type para que axios lo maneje automáticamente
+        if (data instanceof FormData) {
+            config.headers = {
+                'Content-Type': 'multipart/form-data'
+            };
+        }
+        
+        const response = await apiClient.post(url, data, config);
         return response.data;
     } catch (error) {
         console.log('Error en la petición POST:', error.response ? error.response.data : error.message);
