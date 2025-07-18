@@ -108,7 +108,7 @@
     <!-- Filtros y búsqueda responsivos -->
     <div class="filter-section q-mb-md">
       <div class="row q-gutter-y-sm q-gutter-x-md items-center">
-        <div class="col-12 col-sm-6 col-md-4">
+        <div class="col-12 col-sm-6 col-md-5">
           <q-input
             outlined
             v-model="searchTerm"
@@ -122,19 +122,7 @@
           </q-input>
         </div>
         
-        <div class="col-12 col-sm-6 col-md-3">
-          <q-select
-            outlined
-            v-model="departmentFilter"
-            :options="departmentOptions"
-            label="Departamento"
-            dense
-            clearable
-            @update:model-value="filterEmployees"
-          />
-        </div>
-        
-        <div class="col-12 col-sm-6 col-md-3">
+        <div class="col-12 col-sm-6 col-md-4">
           <q-select
             outlined
             v-model="contractTypeFilter"
@@ -146,7 +134,7 @@
           />
         </div>
         
-        <div class="col-12 col-sm-6 col-md-2">
+        <div class="col-12 col-sm-6 col-md-3">
           <q-btn
             color="secondary"
             icon="filter_list"
@@ -202,7 +190,7 @@
               icon="edit"
               color="orange"
               size="sm"
-              @click="editUser(props.row)"
+              @click="editEmployee(props.row)"
             />
             <q-btn
               flat
@@ -293,7 +281,7 @@
                   icon="edit"
                   color="orange"
                   size="sm"
-                  @click="editUser(employee)"
+                  @click="editEmployee(employee)"
                   round
                 />
                 <q-btn
@@ -402,7 +390,6 @@
                 <q-tab name="laboral" icon="work" label="Información Laboral" />
                 <q-tab name="social" icon="health_and_safety" label="Seguridad Social" />
                 <q-tab name="documents" icon="description" label="Documentos" />
-                <q-tab name="emergency" icon="emergency" label="Contacto Emergencia" />
               </q-tabs>
 
               <q-separator />
@@ -422,10 +409,6 @@
                             <div class="info-item">
                               <div class="info-label">Fecha de Nacimiento</div>
                               <div class="info-value">{{ formatDate(selectedUser.FechaNacimiento) }} ({{ selectedUser.Edad }} años)</div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Género</div>
-                              <div class="info-value">{{ selectedUser.Genero || 'N/A' }}</div>
                             </div>
                             <div class="info-item">
                               <div class="info-label">Estado Civil</div>
@@ -464,18 +447,40 @@
                             <div class="info-item">
                               <div class="info-label">Correo Electrónico</div>
                               <div class="info-value">
-                                <a :href="'mailto:' + selectedUser.Correo">{{ selectedUser.Correo || 'N/A' }}</a>
+                                <div v-if="selectedUser.Correo" class="row items-center q-gutter-xs">
+                                  <span>{{ selectedUser.Correo }}</span>
+                                  <q-btn 
+                                    flat 
+                                    round 
+                                    icon="email" 
+                                    color="primary" 
+                                    size="sm"
+                                    @click="openEmail(selectedUser.Correo)"
+                                  >
+                                    <q-tooltip>Enviar correo</q-tooltip>
+                                  </q-btn>
+                                </div>
+                                <span v-else class="text-grey-6">N/A</span>
                               </div>
                             </div>
                             <div class="info-item">
                               <div class="info-label">Teléfono</div>
                               <div class="info-value">
-                                <a :href="'tel:' + selectedUser.Telefono">{{ selectedUser.Telefono || 'N/A' }}</a>
+                                <div v-if="selectedUser.Telefono" class="row items-center q-gutter-xs">
+                                  <span>{{ selectedUser.Telefono }}</span>
+                                  <q-btn 
+                                    flat 
+                                    round 
+                                    icon="phone" 
+                                    color="primary" 
+                                    size="sm"
+                                    @click="callPhone(selectedUser.Telefono)"
+                                  >
+                                    <q-tooltip>Llamar</q-tooltip>
+                                  </q-btn>
+                                </div>
+                                <span v-else class="text-grey-6">N/A</span>
                               </div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Dirección</div>
-                              <div class="info-value">{{ selectedUser.Direccion || 'N/A' }}</div>
                             </div>
                             <div class="info-item">
                               <div class="info-label">Ciudad</div>
@@ -484,6 +489,10 @@
                             <div class="info-item">
                               <div class="info-label">Estrato</div>
                               <div class="info-value">{{ selectedUser.Estrato || 'N/A' }}</div>
+                            </div>
+                            <div class="info-item">
+                              <div class="info-label">Observaciones</div>
+                              <div class="info-value">{{ selectedUser.Observacions || 'N/A' }}</div>
                             </div>
                           </div>
                         </q-card-section>
@@ -508,20 +517,16 @@
                               <div class="info-value">{{ selectedUser.Cargo || 'N/A' }}</div>
                             </div>
                             <div class="info-item">
-                              <div class="info-label">Departamento</div>
-                              <div class="info-value">{{ selectedUser.Departamento || 'N/A' }}</div>
-                            </div>
-                            <div class="info-item">
                               <div class="info-label">Sede</div>
                               <div class="info-value">{{ selectedUser.Sede || 'N/A' }}</div>
                             </div>
                             <div class="info-item">
-                              <div class="info-label">Jefe Directo</div>
-                              <div class="info-value">{{ selectedUser.JefeDirecto || 'N/A' }}</div>
-                            </div>
-                            <div class="info-item">
                               <div class="info-label">Tipo de Contrato</div>
                               <div class="info-value">{{ selectedUser.TipoContrato || 'N/A' }}</div>
+                            </div>
+                            <div class="info-item">
+                              <div class="info-label">Evaluación de Desempeño</div>
+                              <div class="info-value">{{ selectedUser.EvaluacionDesempeño || 'N/A' }}</div>
                             </div>
                           </div>
                         </q-card-section>
@@ -553,8 +558,16 @@
                               <div class="info-value">{{ formatCurrency(selectedUser.Sueldo) }}</div>
                             </div>
                             <div class="info-item">
-                              <div class="info-label">Bonos</div>
-                              <div class="info-value">{{ formatCurrency(selectedUser.Bonos) || 'N/A' }}</div>
+                              <div class="info-label">Último Período Vacacional</div>
+                              <div class="info-value">{{ formatDate(selectedUser.UltimoPeriodoVacacional) }}</div>
+                            </div>
+                            <div class="info-item">
+                              <div class="info-label">Control de Ausentismo</div>
+                              <div class="info-value">{{ selectedUser.ControlAusentismo || 'N/A' }}</div>
+                            </div>
+                            <div class="info-item">
+                              <div class="info-label">Sanciones</div>
+                              <div class="info-value">{{ selectedUser.Sanciones || 'N/A' }}</div>
                             </div>
                           </div>
                         </q-card-section>
@@ -564,33 +577,13 @@
                     <div class="col-12">
                       <q-card flat bordered>
                         <q-card-section>
-                          <div class="text-h6">Historial Laboral</div>
+                          <div class="text-h6">Perfil Profesional Completo</div>
                         </q-card-section>
                         <q-separator />
                         <q-card-section>
-                          <q-markup-table flat bordered>
-                            <thead>
-                              <tr>
-                                <th class="text-left">Cargo</th>
-                                <th class="text-left">Departamento</th>
-                                <th class="text-left">Fecha Inicio</th>
-                                <th class="text-left">Fecha Fin</th>
-                                <th class="text-left">Salario</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr v-for="(history, index) in selectedUser.HistorialLaboral" :key="index">
-                                <td>{{ history.Cargo || 'N/A' }}</td>
-                                <td>{{ history.Departamento || 'N/A' }}</td>
-                                <td>{{ formatDate(history.FechaInicio) }}</td>
-                                <td>{{ formatDate(history.FechaFin) || 'Actual' }}</td>
-                                <td>{{ formatCurrency(history.Salario) }}</td>
-                              </tr>
-                              <tr v-if="!selectedUser.HistorialLaboral || selectedUser.HistorialLaboral.length === 0">
-                                <td colspan="5" class="text-center text-grey-7">No hay historial laboral registrado</td>
-                              </tr>
-                            </tbody>
-                          </q-markup-table>
+                          <div class="text-body1">
+                            {{ selectedUser.PerfilProfesional || 'No hay perfil profesional registrado.' }}
+                          </div>
                         </q-card-section>
                       </q-card>
                     </div>
@@ -613,16 +606,8 @@
                               <div class="info-value">{{ selectedUser.Eps || 'N/A' }}</div>
                             </div>
                             <div class="info-item">
-                              <div class="info-label">Número de Afiliación</div>
-                              <div class="info-value">{{ selectedUser.EpsNumero || 'N/A' }}</div>
-                            </div>
-                            <div class="info-item">
                               <div class="info-label">Fondo de Pensiones</div>
                               <div class="info-value">{{ selectedUser.FondoPension || 'N/A' }}</div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Número de Afiliación</div>
-                              <div class="info-value">{{ selectedUser.FondoPensionNumero || 'N/A' }}</div>
                             </div>
                           </div>
                         </q-card-section>
@@ -642,14 +627,6 @@
                               <div class="info-value">{{ selectedUser.Arl || 'N/A' }}</div>
                             </div>
                             <div class="info-item">
-                              <div class="info-label">Número de Afiliación</div>
-                              <div class="info-value">{{ selectedUser.ArlNumero || 'N/A' }}</div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Nivel de Riesgo</div>
-                              <div class="info-value">{{ selectedUser.NivelRiesgo || 'N/A' }}</div>
-                            </div>
-                            <div class="info-item">
                               <div class="info-label">Caja de Compensación</div>
                               <div class="info-value">{{ selectedUser.CajaCompensacion || 'N/A' }}</div>
                             </div>
@@ -666,26 +643,131 @@
                     <div class="col-md-6 col-sm-12">
                       <q-card flat bordered>
                         <q-card-section>
-                          <div class="text-h6">Documentos Obligatorios</div>
+                          <div class="text-h6">Documentos del Empleado</div>
                         </q-card-section>
                         <q-separator />
                         <q-card-section>
-                          <div class="documents-grid">
-                            <div class="document-item" v-for="(doc, index) in mandatoryDocuments" :key="index">
-                              <div class="document-icon">
-                                <q-icon :name="doc.available ? 'check_circle' : 'cancel'" 
-                                        :color="doc.available ? 'positive' : 'negative'" 
-                                        size="24px" />
-                              </div>
-                              <div class="document-info">
-                                <div class="document-name">{{ doc.name }}</div>
-                                <div class="document-date" v-if="doc.date">
-                                  {{ formatDate(doc.date) }}
+                          <div class="info-grid">
+                            <div class="info-item">
+                              <div class="info-label">Certificado de Estudios</div>
+                              <div class="info-value">
+                                <div v-if="selectedUser.CertificadoEstudio" class="column q-gutter-xs">
+                                  <div class="row items-center q-gutter-xs">
+                                    <q-chip color="positive" text-color="white" icon="check_circle" size="sm">
+                                      Disponible
+                                    </q-chip>
+                                    <q-btn 
+                                      flat 
+                                      round 
+                                      icon="visibility" 
+                                      color="primary" 
+                                      size="sm"
+                                      @click="viewDocument(selectedUser.CertificadoEstudio, 'Certificado de Estudios')"
+                                    >
+                                      <q-tooltip>Ver documento en nueva pestaña</q-tooltip>
+                                    </q-btn>
+                                    <q-btn 
+                                      flat 
+                                      round 
+                                      icon="download" 
+                                      color="secondary" 
+                                      size="sm"
+                                      @click="downloadDocument(selectedUser.CertificadoEstudio, 'Certificado_Estudios_' + selectedUser.Nombre + '_' + selectedUser.Apellido + '.pdf')"
+                                    >
+                                      <q-tooltip>Descargar documento</q-tooltip>
+                                    </q-btn>
+                                    <q-btn 
+                                      flat 
+                                      round 
+                                      icon="open_in_new" 
+                                      color="orange" 
+                                      size="sm"
+                                      @click="window.open(selectedUser.CertificadoEstudio.startsWith('http') ? selectedUser.CertificadoEstudio : 'https://' + selectedUser.CertificadoEstudio, '_blank')"
+                                    >
+                                      <q-tooltip>Abrir enlace directo</q-tooltip>
+                                    </q-btn>
+                                    <q-btn 
+                                      flat 
+                                      round 
+                                      icon="bug_report" 
+                                      color="info" 
+                                      size="sm"
+                                      @click="console.log('URL Certificado:', selectedUser.CertificadoEstudio); $q.notify({message: 'URL mostrada en consola (F12)', color: 'info'})"
+                                    >
+                                      <q-tooltip>Ver URL en consola</q-tooltip>
+                                    </q-btn>
+                                  </div>
+                                  <div class="text-caption text-grey-6 q-mt-xs">
+                                    <q-icon name="link" size="xs" /> Documento almacenado en la nube
+                                  </div>
+                                </div>
+                                <div v-else class="text-grey-6">
+                                  <q-chip color="grey-4" text-color="grey-7" icon="description" size="sm">
+                                    No disponible
+                                  </q-chip>
+                                  <div class="text-caption q-mt-xs">No se ha cargado ningún documento</div>
                                 </div>
                               </div>
-                              <div class="document-actions">
-                                <q-btn flat round icon="visibility" color="primary" size="sm" v-if="doc.available" />
-                                <q-btn flat round icon="cloud_upload" color="grey" size="sm" v-else />
+                            </div>
+                            <div class="info-item">
+                              <div class="info-label">Copia del Contrato</div>
+                              <div class="info-value">
+                                <div v-if="selectedUser.CopiaContrato" class="column q-gutter-xs">
+                                  <div class="row items-center q-gutter-xs">
+                                    <q-chip color="positive" text-color="white" icon="check_circle" size="sm">
+                                      Disponible
+                                    </q-chip>
+                                    <q-btn 
+                                      flat 
+                                      round 
+                                      icon="visibility" 
+                                      color="primary" 
+                                      size="sm"
+                                      @click="viewDocument(selectedUser.CopiaContrato, 'Copia del Contrato')"
+                                    >
+                                      <q-tooltip>Ver documento en nueva pestaña</q-tooltip>
+                                    </q-btn>
+                                    <q-btn 
+                                      flat 
+                                      round 
+                                      icon="download" 
+                                      color="secondary" 
+                                      size="sm"
+                                      @click="downloadDocument(selectedUser.CopiaContrato, 'Contrato_' + selectedUser.Nombre + '_' + selectedUser.Apellido + '.pdf')"
+                                    >
+                                      <q-tooltip>Descargar documento</q-tooltip>
+                                    </q-btn>
+                                    <q-btn 
+                                      flat 
+                                      round 
+                                      icon="open_in_new" 
+                                      color="orange" 
+                                      size="sm"
+                                      @click="window.open(selectedUser.CopiaContrato.startsWith('http') ? selectedUser.CopiaContrato : 'https://' + selectedUser.CopiaContrato, '_blank')"
+                                    >
+                                      <q-tooltip>Abrir enlace directo</q-tooltip>
+                                    </q-btn>
+                                    <q-btn 
+                                      flat 
+                                      round 
+                                      icon="bug_report" 
+                                      color="info" 
+                                      size="sm"
+                                      @click="console.log('URL Contrato:', selectedUser.CopiaContrato); $q.notify({message: 'URL mostrada en consola (F12)', color: 'info'})"
+                                    >
+                                      <q-tooltip>Ver URL en consola</q-tooltip>
+                                    </q-btn>
+                                  </div>
+                                  <div class="text-caption text-grey-6 q-mt-xs">
+                                    <q-icon name="link" size="xs" /> Documento almacenado en la nube
+                                  </div>
+                                </div>
+                                <div v-else class="text-grey-6">
+                                  <q-chip color="grey-4" text-color="grey-7" icon="description" size="sm">
+                                    No disponible
+                                  </q-chip>
+                                  <div class="text-caption q-mt-xs">No se ha cargado ningún documento</div>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -696,150 +778,14 @@
                     <div class="col-md-6 col-sm-12">
                       <q-card flat bordered>
                         <q-card-section>
-                          <div class="text-h6">Evaluaciones y Sanciones</div>
+                          <div class="text-h6">Evaluación y Disciplina</div>
                         </q-card-section>
                         <q-separator />
                         <q-card-section>
                           <div class="info-grid">
                             <div class="info-item">
-                              <div class="info-label">Última Evaluación</div>
-                              <div class="info-value">
-                                {{ selectedUser.UltimaEvaluacion ? formatDate(selectedUser.UltimaEvaluacion.Fecha) : 'N/A' }}
-                                <q-badge v-if="selectedUser.UltimaEvaluacion" 
-                                         :color="getEvaluationColor(selectedUser.UltimaEvaluacion.Calificacion)"
-                                         class="q-ml-sm">
-                                  {{ selectedUser.UltimaEvaluacion.Calificacion || 'N/A' }}
-                                </q-badge>
-                              </div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Sanciones</div>
-                              <div class="info-value">
-                                {{ selectedUser.Sanciones ? selectedUser.Sanciones.length : '0' }}
-                                <q-badge color="negative" class="q-ml-sm" v-if="selectedUser.Sanciones && selectedUser.Sanciones.length > 0">
-                                  {{ selectedUser.Sanciones.length }}
-                                </q-badge>
-                              </div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Capacitaciones</div>
-                              <div class="info-value">
-                                {{ selectedUser.Capacitaciones ? selectedUser.Capacitaciones.length : '0' }}
-                              </div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Último Periodo Vacacional</div>
-                              <div class="info-value">
-                                {{ selectedUser.UltimoPeriodoVacacional ? formatDate(selectedUser.UltimoPeriodoVacacional) : 'N/A' }}
-                              </div>
-                            </div>
-                          </div>
-                        </q-card-section>
-                      </q-card>
-
-                      <q-card flat bordered class="q-mt-md">
-                        <q-card-section>
-                          <div class="text-h6">Ausentismo</div>
-                        </q-card-section>
-                        <q-separator />
-                        <q-card-section>
-                          <div v-if="selectedUser.Ausentismo && selectedUser.Ausentismo.length > 0">
-                            <q-markup-table flat bordered>
-                              <thead>
-                                <tr>
-                                  <th class="text-left">Tipo</th>
-                                  <th class="text-left">Fecha Inicio</th>
-                                  <th class="text-left">Fecha Fin</th>
-                                  <th class="text-left">Días</th>
-                                  <th class="text-left">Justificación</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr v-for="(absence, index) in selectedUser.Ausentismo" :key="index">
-                                  <td>{{ absence.Tipo || 'N/A' }}</td>
-                                  <td>{{ formatDate(absence.FechaInicio) }}</td>
-                                  <td>{{ formatDate(absence.FechaFin) }}</td>
-                                  <td>{{ absence.Dias || 'N/A' }}</td>
-                                  <td>
-                                    <q-icon :name="absence.Justificado ? 'check' : 'close'" 
-                                            :color="absence.Justificado ? 'positive' : 'negative'" />
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </q-markup-table>
-                          </div>
-                          <div v-else class="text-center text-grey-7 q-pa-md">
-                            No hay registros de ausentismo
-                          </div>
-                        </q-card-section>
-                      </q-card>
-                    </div>
-                  </div>
-                </q-tab-panel>
-
-                <!-- Contacto de Emergencia -->
-                <q-tab-panel name="emergency">
-                  <div class="row q-col-gutter-md">
-                    <div class="col-md-6 col-sm-12">
-                      <q-card flat bordered>
-                        <q-card-section>
-                          <div class="text-h6">Contacto Principal</div>
-                        </q-card-section>
-                        <q-separator />
-                        <q-card-section>
-                          <div class="info-grid">
-                            <div class="info-item">
-                              <div class="info-label">Nombre Completo</div>
-                              <div class="info-value">{{ selectedUser.ContactoEmergenciaNombre || 'N/A' }}</div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Parentesco</div>
-                              <div class="info-value">{{ selectedUser.ContactoEmergenciaParentesco || 'N/A' }}</div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Teléfono</div>
-                              <div class="info-value">
-                                <a v-if="selectedUser.ContactoEmergenciaTelefono" 
-                                   :href="'tel:' + selectedUser.ContactoEmergenciaTelefono">
-                                  {{ selectedUser.ContactoEmergenciaTelefono }}
-                                </a>
-                                <span v-else>N/A</span>
-                              </div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Dirección</div>
-                              <div class="info-value">{{ selectedUser.ContactoEmergenciaDireccion || 'N/A' }}</div>
-                            </div>
-                          </div>
-                        </q-card-section>
-                      </q-card>
-                    </div>
-
-                    <div class="col-md-6 col-sm-12">
-                      <q-card flat bordered>
-                        <q-card-section>
-                          <div class="text-h6">Contacto Secundario</div>
-                        </q-card-section>
-                        <q-separator />
-                        <q-card-section>
-                          <div class="info-grid">
-                            <div class="info-item">
-                              <div class="info-label">Nombre Completo</div>
-                              <div class="info-value">{{ selectedUser.ContactoEmergenciaSecundarioNombre || 'N/A' }}</div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Parentesco</div>
-                              <div class="info-value">{{ selectedUser.ContactoEmergenciaSecundarioParentesco || 'N/A' }}</div>
-                            </div>
-                            <div class="info-item">
-                              <div class="info-label">Teléfono</div>
-                              <div class="info-value">
-                                <a v-if="selectedUser.ContactoEmergenciaSecundarioTelefono" 
-                                   :href="'tel:' + selectedUser.ContactoEmergenciaSecundarioTelefono">
-                                  {{ selectedUser.ContactoEmergenciaSecundarioTelefono }}
-                                </a>
-                                <span v-else>N/A</span>
-                              </div>
+                              <div class="info-label">Evaluación de Desempeño</div>
+                              <div class="info-value">{{ selectedUser.EvaluacionDesempeño || 'N/A' }}</div>
                             </div>
                           </div>
                         </q-card-section>
@@ -1143,6 +1089,16 @@
                       :rules="[val => !!val || 'Campo requerido']"
                     />
                   </div>
+                  <div class="col-12">
+                    <q-input 
+                      outlined 
+                      v-model="newEmployee.Observacions" 
+                      label="Observaciones" 
+                      type="textarea" 
+                      rows="2" 
+                      hint="Notas adicionales sobre el empleado (opcional)"
+                    />
+                  </div>
                 </div>
               </q-tab-panel>
 
@@ -1237,77 +1193,35 @@
                         @file-removed="onFileRemoved('CopiaContrato')"
                       />
                     </div>
-                    <div class="col-md-6 col-sm-12">
-                      <FileUpload
-                        v-model="newEmployee.ControlAusentismo"
-                        label="Control de Ausentismo"
-                        hint="Documentos relacionados con control de ausentismo"
-                        folder="employee-documents/attendance"
-                        @file-uploaded="onFileUploaded('ControlAusentismo', $event)"
-                        @file-removed="onFileRemoved('ControlAusentismo')"
-                      />
-                    </div>
-                    <div class="col-md-6 col-sm-12">
-                      <FileUpload
-                        v-model="newEmployee.Sanciones"
-                        label="Registro de Sanciones"
-                        hint="Documentos de sanciones disciplinarias (si aplica)"
-                        folder="employee-documents/sanctions"
-                        @file-uploaded="onFileUploaded('Sanciones', $event)"
-                        @file-removed="onFileRemoved('Sanciones')"
-                      />
-                    </div>
                   </div>
                 </div>
 
-                <!-- Documentos adicionales opcionales -->
+                <!-- Campos de texto para control y observaciones -->
                 <div class="q-mb-lg">
                   <div class="text-subtitle1 q-mb-md text-grey-7">
-                    <q-icon name="folder_shared" class="q-mr-sm" />
-                    Documentos Adicionales (Opcionales)
+                    <q-icon name="assignment" class="q-mr-sm" />
+                    Registro y Control
                   </div>
                   
                   <div class="row q-col-gutter-md">
                     <div class="col-md-6 col-sm-12">
-                      <FileUpload
-                        v-model="newEmployee.HojaDeVida"
-                        label="Hoja de Vida"
-                        hint="Curriculum vitae actualizado (PDF recomendado)"
-                        folder="employee-documents/resumes"
-                        accepted-types=".pdf,.doc,.docx"
-                        @file-uploaded="onFileUploaded('HojaDeVida', $event)"
-                        @file-removed="onFileRemoved('HojaDeVida')"
+                      <q-input 
+                        outlined 
+                        v-model="newEmployee.ControlAusentismo" 
+                        label="Control de Ausentismo" 
+                        type="textarea" 
+                        rows="2" 
+                        hint="Notas sobre control de ausentismo"
                       />
                     </div>
                     <div class="col-md-6 col-sm-12">
-                      <FileUpload
-                        v-model="newEmployee.FotocopiaCedula"
-                        label="Fotocopia de Cédula"
-                        hint="Documento de identidad escaneado"
-                        folder="employee-documents/identification"
-                        accepted-types=".pdf,.jpg,.jpeg,.png"
-                        @file-uploaded="onFileUploaded('FotocopiaCedula', $event)"
-                        @file-removed="onFileRemoved('FotocopiaCedula')"
-                      />
-                    </div>
-                    <div class="col-md-6 col-sm-12">
-                      <FileUpload
-                        v-model="newEmployee.CertificadoEps"
-                        label="Certificado EPS"
-                        hint="Certificado de afiliación a EPS"
-                        folder="employee-documents/health"
-                        @file-uploaded="onFileUploaded('CertificadoEps', $event)"
-                        @file-removed="onFileRemoved('CertificadoEps')"
-                      />
-                    </div>
-                    <div class="col-md-6 col-sm-12">
-                      <FileUpload
-                        v-model="newEmployee.CertificadoAntecedentes"
-                        label="Certificado de Antecedentes"
-                        hint="Certificado judicial de antecedentes"
-                        folder="employee-documents/background-check"
-                        @file-uploaded="onFileUploaded('CertificadoAntecedentes', $event)"
-                        @file-removed="onFileRemoved('CertificadoAntecedentes')"
+                      <q-input 
+                        outlined 
+                        v-model="newEmployee.Sanciones" 
+                        label="Sanciones" 
+                        type="textarea" 
+                        rows="2" 
+                        hint="Registro de sanciones disciplinarias"
                       />
                     </div>
                   </div>
@@ -1619,6 +1533,16 @@
                       :rules="[val => !!val || 'Campo requerido']"
                     />
                   </div>
+                  <div class="col-12">
+                    <q-input 
+                      outlined 
+                      v-model="editEmployeeData.Observacions" 
+                      label="Observaciones" 
+                      type="textarea" 
+                      rows="2" 
+                      hint="Notas adicionales sobre el empleado (opcional)"
+                    />
+                  </div>
                 </div>
               </q-tab-panel>
 
@@ -1847,13 +1771,6 @@ const columns = [
     sortable: true
   },
   {
-    name: 'Departamento',
-    label: 'Departamento',
-    align: 'left',
-    field: 'Departamento',
-    sortable: true
-  },
-  {
     name: 'Sueldo',
     label: 'Salario',
     align: 'right',
@@ -1905,7 +1822,6 @@ const mobilePagination = ref({
   rowsPerPage: 8
 });
 const searchTerm = ref('');
-const departmentFilter = ref(null);
 const contractTypeFilter = ref(null);
 const currentSede = ref('Villanueva'); // Sede activa por defecto
 const showNewEmployeeDialog = ref(false);
@@ -1952,26 +1868,16 @@ const newEmployee = ref({
   CertificadoEstudio: '',
   CopiaContrato: '',
   ControlAusentismo: '',
-  Sanciones: ''
+  Sanciones: '',
+  Observacions: ''
 });
 
 // Opciones para filtros
-const departmentOptions = ref(['Administración', 'TI', 'Recursos Humanos', 'Ventas', 'Marketing', 'Producción']);
 const contractTypeOptions = ref(['Término Fijo', 'Término Indefinido', 'Prestación de Servicios', 'Aprendizaje', 'Obra o Labor']);
 const jobPositions = ref([
   'Desarrollador', 'Diseñador', 'Gerente', 'Analista', 'Asistente', 'Director',
   'Coordinador', 'Supervisor', 'Técnico', 'Especialista', 'Consultor', 'Operario',
   'Administrativo', 'Vendedor', 'Contador', 'Abogado', 'Médico', 'Enfermero'
-]);
-
-// Documentos obligatorios (ejemplo)
-const mandatoryDocuments = ref([
-  { name: 'Hoja de Vida', field: 'HojaDeVida', available: false, date: null },
-  { name: 'Certificado de Estudios', field: 'CertificadoEstudio', available: false, date: null },
-  { name: 'Copia de Contrato', field: 'CopiaContrato', available: false, date: null },
-  { name: 'Fotocopia de Cédula', field: 'FotocopiaCedula', available: false, date: null },
-  { name: 'Certificado EPS', field: 'CertificadoEps', available: false, date: null },
-  { name: 'Certificado de Antecedentes', field: 'CertificadoAntecedentes', available: false, date: null }
 ]);
 
 // Funciones computadas
@@ -2044,13 +1950,6 @@ function getEvaluationColor(score) {
 
 function viewUserDetails(user) {
   selectedUser.value = user;
-  
-  // Actualizar estado de documentos
-  mandatoryDocuments.value.forEach(doc => {
-    doc.available = !!selectedUser.value[doc.field];
-    doc.date = selectedUser.value[`${doc.field}Fecha`];
-  });
-  
   showModal.value = true;
   currentTab.value = 'personal';
 }
@@ -2257,13 +2156,6 @@ function filterEmployees() {
     );
   }
   
-  // Filtrar por departamento
-  if (departmentFilter.value) {
-    filtered = filtered.filter(user => 
-      user.Departamento && user.Departamento === departmentFilter.value
-    );
-  }
-  
   // Filtrar por tipo de contrato
   if (contractTypeFilter.value) {
     filtered = filtered.filter(user => 
@@ -2392,14 +2284,86 @@ function viewDocument(url, filename) {
     return;
   }
 
-  // Abrir en una nueva ventana
-  window.open(url, '_blank');
-  
-  $q.notify({
-    message: `Abriendo ${filename}`,
-    color: 'info',
-    icon: 'visibility'
-  });
+  try {
+    // Verificar si es una URL válida
+    let documentUrl = url;
+    
+    // Si la URL no tiene protocolo, agregarle https://
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      documentUrl = 'https://' + url;
+    }
+
+    console.log('Abriendo documento:', documentUrl);
+
+    // Para Cloudinary, usar URL simple sin parámetros que causan 401
+    if (documentUrl.includes('cloudinary.com')) {
+      // Remover parámetros que puedan causar problemas de autorización
+      const cleanUrl = documentUrl.split('?')[0];
+      console.log('URL de Cloudinary limpia:', cleanUrl);
+      documentUrl = cleanUrl;
+    }
+
+    // Abrir en nueva ventana con configuración optimizada
+    const newWindow = window.open(
+      documentUrl, 
+      '_blank', 
+      'width=1200,height=800,scrollbars=yes,resizable=yes,toolbar=yes,menubar=yes,location=yes'
+    );
+    
+    if (!newWindow) {
+      throw new Error('Popup bloqueado por el navegador');
+    }
+    
+    $q.notify({
+      message: `Abriendo ${filename}`,
+      color: 'positive',
+      icon: 'visibility',
+      timeout: 3000
+    });
+
+    // Para PDFs de Cloudinary, mostrar información adicional
+    if (documentUrl.includes('cloudinary.com') && (documentUrl.includes('.pdf') || filename.toLowerCase().includes('pdf'))) {
+      setTimeout(() => {
+        $q.notify({
+          message: 'PDF abierto. Si no se visualiza correctamente, prueba descargándolo.',
+          color: 'info',
+          timeout: 5000,
+          icon: 'picture_as_pdf'
+        });
+      }, 2000);
+    }
+
+  } catch (error) {
+    console.error('Error al abrir documento:', error);
+    
+    // Fallback: Ofrecer opciones alternativas
+    $q.notify({
+      message: 'No se pudo abrir automáticamente',
+      color: 'warning',
+      timeout: 8000,
+      actions: [
+        {
+          label: 'Copiar URL',
+          color: 'white',
+          handler: () => {
+            const finalUrl = url.startsWith('http') ? url : 'https://' + url;
+            navigator.clipboard.writeText(finalUrl).then(() => {
+              $q.notify({
+                message: 'URL copiada. Pégala en una nueva pestaña.',
+                color: 'positive'
+              });
+            }).catch(() => {
+              $q.notify({
+                message: `URL: ${finalUrl}`,
+                color: 'info',
+                timeout: 10000
+              });
+            });
+          }
+        }
+      ]
+    });
+  }
 }
 
 function downloadDocument(url, filename) {
@@ -2412,24 +2376,220 @@ function downloadDocument(url, filename) {
   }
 
   try {
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename || 'documento';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Verificar si es una URL válida
+    let documentUrl = url;
+    
+    // Si la URL no tiene protocolo, agregarle https://
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      documentUrl = 'https://' + url;
+    }
 
+    console.log('Iniciando descarga:', documentUrl);
+
+    // Para Cloudinary, debido a las restricciones 401, usar método directo
+    if (documentUrl.includes('cloudinary.com')) {
+      console.log('Detectada URL de Cloudinary, usando método directo');
+      
+      // Método directo: Abrir en nueva pestaña para que el usuario pueda guardar manualmente
+      const newWindow = window.open(documentUrl, '_blank');
+      
+      if (!newWindow) {
+        throw new Error('Popup bloqueado');
+      }
+      
+      $q.notify({
+        message: `Documento abierto en nueva pestaña`,
+        color: 'info',
+        timeout: 8000,
+        icon: 'open_in_new',
+        actions: [
+          {
+            label: 'Copiar URL',
+            color: 'white',
+            handler: () => {
+              navigator.clipboard.writeText(documentUrl).then(() => {
+                $q.notify({
+                  message: 'URL copiada al portapapeles',
+                  color: 'positive'
+                });
+              });
+            }
+          }
+        ]
+      });
+      
+      // Mostrar instrucciones adicionales
+      setTimeout(() => {
+        $q.notify({
+          message: 'Para descargar: Click derecho → "Guardar como..." o use Ctrl+S',
+          color: 'info',
+          timeout: 6000,
+          icon: 'info'
+        });
+      }, 1500);
+      
+      return;
+    }
+
+    // Para otras URLs, intentar fetch (no-Cloudinary)
+    fetch(documentUrl, {
+      method: 'GET',
+      mode: 'cors'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      // Crear URL temporal del blob
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      // Crear enlace de descarga
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename || 'documento.pdf';
+      
+      // Agregar al DOM temporalmente
+      document.body.appendChild(link);
+      
+      // Ejecutar descarga
+      link.click();
+      
+      // Limpiar
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      
+      $q.notify({
+        message: `Descarga iniciada: ${filename}`,
+        color: 'positive',
+        icon: 'download'
+      });
+    })
+    .catch(fetchError => {
+      console.error('Fetch falló:', fetchError);
+      
+      // Método de respaldo: Abrir en nueva pestaña
+      const newWindow = window.open(documentUrl, '_blank');
+      
+      if (newWindow) {
+        $q.notify({
+          message: 'Archivo abierto en nueva pestaña para descarga manual',
+          color: 'info',
+          timeout: 6000,
+          actions: [
+            {
+              label: 'Copiar URL',
+              color: 'white',
+              handler: () => {
+                navigator.clipboard.writeText(documentUrl).then(() => {
+                  $q.notify({
+                    message: 'URL copiada al portapapeles',
+                    color: 'positive'
+                  });
+                });
+              }
+            }
+          ]
+        });
+      } else {
+        throw new Error('No se pudo abrir el documento');
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al procesar descarga:', error);
+    
+    // Último recurso: Mostrar URL para copia manual
     $q.notify({
-      message: `Descargando ${filename}`,
-      color: 'positive',
-      icon: 'download'
+      message: 'No se pudo descargar automáticamente. Puedes copiar la URL.',
+      color: 'warning',
+      timeout: 8000,
+      actions: [
+        {
+          label: 'Copiar URL',
+          color: 'white',
+          handler: () => {
+            const finalUrl = url.startsWith('http') ? url : 'https://' + url;
+            navigator.clipboard.writeText(finalUrl).then(() => {
+              $q.notify({
+                message: 'URL copiada. Pégala en una nueva pestaña.',
+                color: 'positive'
+              });
+            });
+          }
+        }
+      ]
+    });
+  }
+}
+
+// Funciones para contacto
+function openEmail(email) {
+  if (!email) {
+    $q.notify({
+      message: 'Correo electrónico no disponible',
+      color: 'warning'
+    });
+    return;
+  }
+
+  try {
+    window.open(`mailto:${email}`, '_blank');
+    
+    $q.notify({
+      message: `Abriendo cliente de correo para ${email}`,
+      color: 'info',
+      icon: 'email'
     });
   } catch (error) {
-    console.error('Error al descargar documento:', error);
+    // Fallback: copiar email al portapapeles
+    navigator.clipboard.writeText(email).then(() => {
+      $q.notify({
+        message: `Email copiado al portapapeles: ${email}`,
+        color: 'positive',
+        icon: 'content_copy'
+      });
+    }).catch(() => {
+      $q.notify({
+        message: `Email: ${email}`,
+        color: 'info'
+      });
+    });
+  }
+}
+
+function callPhone(phone) {
+  if (!phone) {
     $q.notify({
-      message: 'Error al descargar el documento',
-      color: 'negative'
+      message: 'Número de teléfono no disponible',
+      color: 'warning'
+    });
+    return;
+  }
+
+  try {
+    window.open(`tel:${phone}`, '_blank');
+    
+    $q.notify({
+      message: `Iniciando llamada a ${phone}`,
+      color: 'info',
+      icon: 'phone'
+    });
+  } catch (error) {
+    // Fallback: copiar teléfono al portapapeles
+    navigator.clipboard.writeText(phone).then(() => {
+      $q.notify({
+        message: `Teléfono copiado al portapapeles: ${phone}`,
+        color: 'positive',
+        icon: 'content_copy'
+      });
+    }).catch(() => {
+      $q.notify({
+        message: `Teléfono: ${phone}`,
+        color: 'info'
+      });
     });
   }
 }
