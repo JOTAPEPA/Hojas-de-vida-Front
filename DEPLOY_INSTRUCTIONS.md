@@ -16,9 +16,15 @@ El proyecto está configurado para desplegarse en Render como un **Static Site**
 1. En tu dashboard de Render, crea un nuevo **Static Site**
 2. Conecta tu repositorio GitHub: `JOTAPEPA/Hojas-de-vida-Front`
 3. Configuración:
+   - **Root Directory**: `.` (o déjalo vacío)
    - **Branch**: `main`
    - **Build Command**: `npm install && npm run build`
    - **Publish Directory**: `dist`
+
+### Variables de Entorno para Static Site:
+```
+VITE_API_BASE_URL=https://hojas-de-vida-back.onrender.com/api
+```
 
 ## Opción 2: Web Service
 
@@ -58,3 +64,16 @@ Una vez desplegado, tu frontend debería estar disponible en una URL como:
 
 Y debería comunicarse correctamente con tu backend en:
 - `https://hojas-de-vida-back.onrender.com/api`
+
+## Solución de Problemas
+
+### Error "vite: not found"
+Si obtienes el error `sh: 1: vite: not found`, significa que las dependencias de build no están disponibles. 
+
+**Solución aplicada**: Movimos Vite y otras dependencias de build a `dependencies` en lugar de `devDependencies` para que estén disponibles en el entorno de producción.
+
+### Error de vulnerabilidades
+Si aparecen vulnerabilidades durante `npm install`, puedes ignorarlas durante el despliegue ya que no afectan la funcionalidad.
+
+### Error de conexión con la API
+Verifica que la variable de entorno `VITE_API_BASE_URL` esté configurada correctamente en Render.
