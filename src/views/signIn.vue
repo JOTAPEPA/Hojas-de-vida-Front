@@ -18,11 +18,12 @@
                         {{ errorMessage }}
                     </div>
                     
-                    <!-- Mensaje informativo para el usuario demo -->
+                    <!-- Mensaje informativo para el usuario único -->
                     <div class="info-message">
-                        <p><strong>Usuario demo:</strong></p>
+                        <p><strong>Acceso de Administrador:</strong></p>
                         <p>Email: admin@example.com</p>
                         <p>Contraseña: 123456</p>
+                        <p><small>* Solo el administrador puede acceder al sistema</small></p>
                     </div>
 
                     <div class="form-group">
@@ -83,8 +84,8 @@
         <div v-if="authStore.isLoading" class="loading-overlay">
             <div class="loading-content">
                 <div class="large-spinner"></div>
-                <p>Iniciando sesión...</p>
-                <small>Por favor, espera mientras validamos tus credenciales</small>
+                <p>Verificando credenciales...</p>
+                <small>Validando acceso de administrador</small>
             </div>
         </div>
     </div>
@@ -105,6 +106,10 @@ const errorMessage = ref('');
 const showPassword = ref(false);
 
 
+const togglePasswordVisibility = () => {
+    showPassword.value = !showPassword.value;
+};
+
 // Inicializar el store
 onMounted(() => {
     authStore.initializeAuth();
@@ -122,26 +127,12 @@ const handleSubmit = async () => {
         return;
     }
 
-    // Asegurar que el loading se active desde el inicio
-    authStore.isLoading = true;
-
     try {
-        // Opción 1: Login con usuario específico (sin API)
-        const result = await authStore.loginSpecificUser(email.value, password.value);
-        
-        // Opción 2: Login con API (descomenta la siguiente línea y comenta la anterior)
-        // const result = await authStore.login(email.value, password.value);
+        // Usar la función de login simplificada
+        const result = await authStore.login(email.value, password.value);
         
         if (result.success) {
-            // Intentar obtener datos del usuario desde la API si está disponible
-            try {
-                await authStore.fetchUserData();
-            } catch (error) {
-                console.log('No se pudieron obtener datos adicionales del usuario:', error.message);
-                // Continuar sin error, ya que el login fue exitoso
-            }
-            
-            // Redirigir al dashboard o home
+            // Redirigir al dashboard o home directamente
             router.push('/');
         } else {
             errorMessage.value = result.message;
@@ -149,14 +140,7 @@ const handleSubmit = async () => {
     } catch (error) {
         errorMessage.value = 'Error inesperado. Inténtalo de nuevo.';
         console.error('Error en login:', error);
-    } finally {
-        // Asegurar que el loading se desactive al final
-        authStore.isLoading = false;
     }
-};
-
-const togglePasswordVisibility = () => {
-    showPassword.value = !showPassword.value;
 };
 
 
@@ -451,6 +435,7 @@ const togglePasswordVisibility = () => {
     text-align: center;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     max-width: 300px;
+    width: 90%;
 }
 
 .loading-content p {
@@ -585,15 +570,6 @@ const togglePasswordVisibility = () => {
     .loading-content {
         margin: 20px;
         padding: 30px 25px;
-    }
-    
-    .loading-content p {
-        font-size: 16px;
-    }
-    
-    .large-spinner {
-        width: 35px;
-        height: 35px;
     }
 }
 </style>

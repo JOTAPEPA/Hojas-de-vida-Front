@@ -42,82 +42,41 @@ export const useAdministradorStore = defineStore("auth", () => {
         }
     }
 
-    // Función para hacer login
+    // Función para hacer login con usuario único
     async function login(email, password) {
         isLoading.value = true;
-        try {
-            // Aquí puedes usar tu endpoint real de login
-            const response = await apiClient.post('/auth/login', {
-                email,
-                password
-            });
-
-            const { token: accessToken, refresh_token, user: userData } = response.data;
-            
-            if (accessToken && refresh_token) {
-                setTokens(accessToken, refresh_token, userData);
-                startInactivityTimer(); // Iniciar timer después del login
-                return { success: true, message: "Login exitoso" };
-            } else {
-                throw new Error("Respuesta de login inválida");
-            }
-        } catch (error) {
-            console.error("Error en login:", error);
-            return { 
-                success: false, 
-                message: error.response?.data?.message || "Error al iniciar sesión" 
-            };
-        } finally {
-            isLoading.value = false;
-        }
-    }
-
-    // Función alternativa para login con usuario específico (sin API)
-    function loginSpecificUser(email, password) {
-        isLoading.value = true;
         
-        // Credenciales del usuario específico
-        const validEmail = "admin@example.com";
-        const validPassword = "123456";
-
+        // Credenciales del único usuario autorizado
+        const ADMIN_EMAIL = "admin@example.com";
+        const ADMIN_PASSWORD = "123456";
+        
         return new Promise((resolve) => {
-            // Simular tiempo de respuesta del servidor (más realista para Render)
+            // Simular una pequeña demora para mostrar el loading
             setTimeout(() => {
-                if (email === validEmail && password === validPassword) {
-                    const mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock_token";
-                    const mockRefreshToken = "refresh_token_mock";
-                    const mockUser = {
+                if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                    // Crear tokens y datos del usuario
+                    const adminToken = `admin_token_${Date.now()}`;
+                    const adminRefreshToken = `refresh_admin_${Date.now()}`;
+                    const adminUser = {
                         id: 1,
                         name: "Administrador",
-                        email: validEmail,
+                        email: ADMIN_EMAIL,
                         role: "admin"
                     };
 
-                    setTokens(mockToken, mockRefreshToken, mockUser);
-                    startInactivityTimer(); // Iniciar timer después del login
+                    setTokens(adminToken, adminRefreshToken, adminUser);
+                    startInactivityTimer();
+                    
                     resolve({ success: true, message: "Login exitoso" });
                 } else {
                     resolve({ 
                         success: false, 
-                        message: "Credenciales incorrectas" 
+                        message: "Credenciales incorrectas. Solo el administrador puede acceder." 
                     });
                 }
                 isLoading.value = false;
-            }, 2500); // Simular delay de red más realista (2.5 segundos)
+            }, 1500); // 1.5 segundos de loading para mejor UX
         });
-    }
-
-    // Función para obtener datos del usuario desde la API
-    async function fetchUserData() {
-        try {
-            const response = await apiClient.get('/auth/profile');
-            user.value = response.data;
-            updateLocalStorage();
-            return response.data;
-        } catch (error) {
-            console.error("Error al obtener datos del usuario:", error);
-            throw error;
-        }
     }
 
     function setTokens(accessToken, RefreshToken, userData = null) {
@@ -182,22 +141,18 @@ export const useAdministradorStore = defineStore("auth", () => {
         }
     }
 
-    // Función para refrescar el token
-    async function refreshAccessToken() {
-        try {
-            const response = await apiClient.post('/auth/refresh', {
-                refresh_token: refreshToken.value
-            });
-            
-            const { token: newToken } = response.data;
+    // Función simplificada para mantener la sesión
+    function refreshAccessToken() {
+        // Para un sistema local, simplemente verificamos si el usuario sigue autenticado
+        if (isAuthenticated.value) {
+            // Generar nuevo token local
+            const newToken = `admin_token_${Date.now()}`;
             token.value = newToken;
             updateLocalStorage();
-            
-            return newToken;
-        } catch (error) {
-            console.error("Error al refrescar token:", error);
+            return Promise.resolve(newToken);
+        } else {
             clearAuth();
-            throw error;
+            return Promise.reject(new Error('No hay sesión activa'));
         }
     }
 
@@ -214,8 +169,6 @@ export const useAdministradorStore = defineStore("auth", () => {
         // Actions
         initializeAuth,
         login,
-        loginSpecificUser,
-        fetchUserData,
         setTokens,
         clearAuth,
         logout,

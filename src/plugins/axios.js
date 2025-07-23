@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'https://hojas-de-vida-back.onrender.com/api'
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'https://hojas-de-vida-back.onrender.com/api',
+    timeout: 30000, // 30 segundos para manejar cold starts de Render
 })
 
 apiClient.interceptors.request.use(
