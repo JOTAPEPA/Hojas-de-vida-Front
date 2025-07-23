@@ -1,5 +1,11 @@
-# Build Command
-npm install && npm run build
-
-# Start Command  
-npm run start
+# Para Static Site en Render
+services:
+  - type: web
+    name: hojas-de-vida-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

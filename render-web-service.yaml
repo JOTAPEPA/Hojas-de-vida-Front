@@ -1,0 +1,13 @@
+# Configuración para Web Service en Render
+services:
+  - type: web
+    name: hojas-de-vida-frontend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_BASE_URL
+        value: https://hojas-de-vida-back.onrender.com/api
