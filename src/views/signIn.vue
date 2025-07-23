@@ -68,11 +68,23 @@
                         class="login-button"
                         :disabled="authStore.isLoading"
                     >
-                        <span v-if="authStore.isLoading">Iniciando sesión...</span>
+                        <div v-if="authStore.isLoading" class="loading-container">
+                            <div class="spinner"></div>
+                            <span>Iniciando sesión...</span>
+                        </div>
                         <span v-else>Iniciar Sesión</span>
                     </button>
                   
                 </form>
+            </div>
+        </div>
+        
+        <!-- Overlay de loading global -->
+        <div v-if="authStore.isLoading" class="loading-overlay">
+            <div class="loading-content">
+                <div class="large-spinner"></div>
+                <p>Iniciando sesión...</p>
+                <small>Por favor, espera mientras validamos tus credenciales</small>
             </div>
         </div>
     </div>
@@ -110,6 +122,9 @@ const handleSubmit = async () => {
         return;
     }
 
+    // Asegurar que el loading se active desde el inicio
+    authStore.isLoading = true;
+
     try {
         // Opción 1: Login con usuario específico (sin API)
         const result = await authStore.loginSpecificUser(email.value, password.value);
@@ -134,6 +149,9 @@ const handleSubmit = async () => {
     } catch (error) {
         errorMessage.value = 'Error inesperado. Inténtalo de nuevo.';
         console.error('Error en login:', error);
+    } finally {
+        // Asegurar que el loading se desactive al final
+        authStore.isLoading = false;
     }
 };
 
@@ -369,6 +387,10 @@ const togglePasswordVisibility = () => {
     transition: background-color 0.3s;
     margin-bottom: 20px;
     position: relative;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .login-button:hover:not(:disabled) {
@@ -376,12 +398,82 @@ const togglePasswordVisibility = () => {
 }
 
 .login-button:disabled {
-    background-color: #bdc3c7;
+    background-color: #7fb3d3;
     cursor: not-allowed;
 }
 
 .login-button:disabled:hover {
-    background-color: #bdc3c7;
+    background-color: #7fb3d3;
+}
+
+/* Contenedor de loading */
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Spinner de carga */
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-left: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Overlay de loading global */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+
+.loading-content {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 300px;
+}
+
+.loading-content p {
+    margin: 20px 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.loading-content small {
+    color: #7f8c8d;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.large-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e3f2fd;
+    border-left: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
 }
 
 /* Enlace de registro */
@@ -488,6 +580,20 @@ const togglePasswordVisibility = () => {
     
     .login-form {
         padding: 30px;
+    }
+    
+    .loading-content {
+        margin: 20px;
+        padding: 30px 25px;
+    }
+    
+    .loading-content p {
+        font-size: 16px;
+    }
+    
+    .large-spinner {
+        width: 35px;
+        height: 35px;
     }
 }
 </style>

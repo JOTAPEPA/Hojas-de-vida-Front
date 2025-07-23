@@ -81,6 +81,7 @@ export const useAdministradorStore = defineStore("auth", () => {
         const validPassword = "123456";
 
         return new Promise((resolve) => {
+            // Simular tiempo de respuesta del servidor (más realista para Render)
             setTimeout(() => {
                 if (email === validEmail && password === validPassword) {
                     const mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock_token";
@@ -102,7 +103,7 @@ export const useAdministradorStore = defineStore("auth", () => {
                     });
                 }
                 isLoading.value = false;
-            }, 1000); // Simular delay de red
+            }, 2500); // Simular delay de red más realista (2.5 segundos)
         });
     }
 
